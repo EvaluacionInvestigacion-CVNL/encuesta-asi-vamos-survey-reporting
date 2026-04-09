@@ -149,6 +149,7 @@ DISAGGREGATIONS_TO_TITLES = {
     "totales": "Generales",
     "sexo": "Respuesta por sexo",
     "edad": "Respuesta por edad",
+    "distrito": "Respuesta por distrito",
     "municipio": "Respuesta por unidad geográfica",
     "municipio_por_hombres": "Respuesta de HOMBRES por unidad geográfica",
     "municipio_por_mujeres": "Respuesta de MUJERES por unidad geográfica",

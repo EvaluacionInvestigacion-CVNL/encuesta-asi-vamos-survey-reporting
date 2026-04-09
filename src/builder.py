@@ -118,6 +118,15 @@ def _build_question_tables(
     question_type = question["type"]
 
     question_specific_disaggregations = data.get(question_id, [])
+
+    # For district disaggregations
+    # Overwrite question_specific_disaggregations to only
+    # include dissagregations by totales and distrito
+    # question_specific_disaggregations = [
+    #    {"type": "totales"},
+    #    {"type": "distrito"},
+    # ] 
+    
     tables: list[tuple[str, pd.DataFrame, pd.DataFrame]] = []
 
     for disaggregation in question_specific_disaggregations:

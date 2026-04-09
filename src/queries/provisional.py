@@ -1179,6 +1179,103 @@ def _get_municipio_by_attribute_values_query(
     return query
 
 
+def get_municipio_by_sex_by_trabajo_remunerado_query(
+    sex_id: int, initial_only: bool = True
+) -> str:
+    """
+    Municipality disaggregation filtered by sex AND trabajo remunerado.
+    sex_id: 1 = Hombre, 2 = Mujer
+    Filters tipo_trabajo attribute values 1, 4, 6 (remunerado).
+    """
+    weight = _get_weight_clause(initial_only)
+    initial_filter = _get_initial_filter(initial_only)
+
+    amm_list = ", ".join(map(str, AMM_ID))
+    periferia_list = ", ".join(map(str, PERIFERIA_ID))
+    amm_plus_perif = ", ".join(map(str, AMM_ID + PERIFERIA_ID))
+    filter_values = "1, 4, 6"
+
+    city_case = ""
+    for city_id in AMM_ID:
+        city_name = ID_TO_CITY_NAME[city_id]
+        city_case += f"WHEN r.city_id = {city_id} THEN '{city_name}'\n            "
+
+    query = f"""
+        -- City-level rows (only for AMM municipalities)
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            CASE
+            {city_case}
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+            LEFT JOIN respondent_attributes rf ON a.respondent_id = rf.respondent_id AND rf.attribute = 'tipo_trabajo'
+            LEFT JOIN respondent_attributes rs ON a.respondent_id = rs.respondent_id AND rs.attribute = 'sexo'
+            JOIN responses r ON a.respondent_id = r.respondent_id
+                WHERE a.question_id = :question_id
+                    AND r.city_id IN ({amm_list})
+                    AND rf.value IN ({filter_values})
+                    AND rs.value = {sex_id}
+        {initial_filter}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+
+        UNION ALL
+
+        -- Regional rows: AMM / Periferia / Resto NL
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            CASE
+                WHEN r.city_id IN ({amm_list}) THEN 'AMM'
+                WHEN r.city_id IN ({periferia_list}) THEN 'Periferia'
+                WHEN r.city_id NOT IN ({amm_plus_perif}) THEN 'Resto NL'
+            END AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+            LEFT JOIN respondent_attributes rf ON a.respondent_id = rf.respondent_id AND rf.attribute = 'tipo_trabajo'
+            LEFT JOIN respondent_attributes rs ON a.respondent_id = rs.respondent_id AND rs.attribute = 'sexo'
+            JOIN responses r ON a.respondent_id = r.respondent_id
+                WHERE a.question_id = :question_id
+                    AND r.city_id IS NOT NULL
+                    AND rf.value IN ({filter_values})
+                    AND rs.value = {sex_id}
+        {initial_filter}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            grupo
+
+        UNION ALL
+
+        -- Entire state row: Nuevo León (any non-null municipio)
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+            COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            'Nuevo León' AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+            LEFT JOIN respondent_attributes rf ON a.respondent_id = rf.respondent_id AND rf.attribute = 'tipo_trabajo'
+            LEFT JOIN respondent_attributes rs ON a.respondent_id = rs.respondent_id AND rs.attribute = 'sexo'
+            JOIN responses r ON a.respondent_id = r.respondent_id
+                WHERE a.question_id = :question_id
+                    AND r.city_id IS NOT NULL
+                    AND rf.value IN ({filter_values})
+                    AND rs.value = {sex_id}
+        {initial_filter}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT))
+    """
+    return query
+
+
 def get_municipio_by_nivel_actual_estudios_primaria(initial_only: bool = True) -> str:
     """
     Similar to get_municipio_by_sex but filtered by "nivel_actual_estudios" attribute.
@@ -1216,6 +1313,39 @@ def get_municipio_by_nivel_actual_estudios_media_superior(
         attribute_values=[4, 5],
         initial_only=initial_only,
     )
+
+
+"""
+We want to be able to dissagregate the data by a new respondent
+attribute that is "distrito".
+"""
+def get_distrito_query(initial_only: bool = True) -> str:
+    """
+    It should return a table with the following columns:
+    id_respuesta | Respuesta | 1 | 2 | ... | 26 
+    """
+    weight = _get_weight_clause(initial_only)
+    initial_filter = _get_initial_filter(initial_only)
+
+    query = f"""
+        SELECT
+            COALESCE(o.option_id, a.value) AS id_respuesta,
+             COALESCE(o.option_label, CAST(a.value AS TEXT)) AS Respuesta,
+            ra.value AS grupo,
+            SUM({weight}) AS valor
+        FROM answers a
+        LEFT JOIN options o ON a.question_id = o.question_id AND a.option_id = o.option_id
+        LEFT JOIN respondent_attributes ra ON a.respondent_id = ra.respondent_id AND ra.attribute = 'distrito'
+        JOIN responses r ON a.respondent_id = r.respondent_id
+        WHERE a.question_id = :question_id
+          AND ra.value IS NOT NULL
+        {initial_filter}
+        GROUP BY
+            COALESCE(o.option_id, a.value),
+            COALESCE(o.option_label, CAST(a.value AS TEXT)),
+            ra.value
+    """
+    return query
 
 
 DISAGGREGATIONS_MAP = {
@@ -1329,4 +1459,5 @@ DISAGGREGATIONS_MAP = {
     "nivel_actual_estudios_media_superior_por_municipio": lambda initial_only: get_municipio_by_nivel_actual_estudios_media_superior(
         initial_only
     ),
+    "distrito": lambda initial_only: get_distrito_query(initial_only),
 }
