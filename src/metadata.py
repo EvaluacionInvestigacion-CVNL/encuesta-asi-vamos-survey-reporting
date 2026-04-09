@@ -189,6 +189,8 @@ DISAGGREGATIONS_TO_TITLES = {
     "nivel_actual_estudios_secundaria_por_municipio": "Respuesta por unidad geográfica, estudia actualmente Secundaria",
     "nivel_actual_estudios_media_superior_por_municipio": "Respuesta por unidad geográfica, estudia actualmente Media Superior",
     "trabajo_remunerado_por_municipio": "Respuesta por unidad geográfica, quienes tienen una actividad laboral remunerada",
+    "trabajo_remunerado_por_municipio_por_hombres": "Respuesta de HOMBRES por unidad geográfica, que tienen una actividad laboral remunerada",
+    "trabajo_remunerado_por_municipio_por_mujeres": "Respuesta de MUJERES por unidad geográfica, que tienen una actividad laboral remunerada",
 }
 
 DERIVED_NEXT: list[tuple[str, str]] = [

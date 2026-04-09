@@ -1450,6 +1450,12 @@ DISAGGREGATIONS_MAP = {
     "trabajo_remunerado_por_municipio": lambda initial_only: get_municipio_by_trabajo_remunerado(
         initial_only
     ),
+    "trabajo_remunerado_por_municipio_por_hombres": lambda initial_only: get_municipio_by_sex_by_trabajo_remunerado_query(
+        0, initial_only
+    ),
+    "trabajo_remunerado_por_municipio_por_mujeres": lambda initial_only: get_municipio_by_sex_by_trabajo_remunerado_query(
+        1, initial_only
+    ),
     "nivel_actual_estudios_primaria_por_municipio": lambda initial_only: get_municipio_by_nivel_actual_estudios_primaria(
         initial_only
     ),

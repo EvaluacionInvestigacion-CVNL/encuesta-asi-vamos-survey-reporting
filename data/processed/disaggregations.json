@@ -1006,6 +1006,12 @@
       "type": "trabajo_remunerado_por_mujeres"
     },
     {
+      "type": "trabajo_remunerado_por_municipio_por_hombres"
+    },
+    {
+      "type": "trabajo_remunerado_por_municipio_por_mujeres"
+    },
+    {
       "type": "tipo_trabajo"
     },
     {
@@ -1051,6 +1057,12 @@
     },
     {
       "type": "trabajo_remunerado_por_mujeres"
+    },
+    {
+      "type": "trabajo_remunerado_por_municipio_por_hombres"
+    },
+    {
+      "type": "trabajo_remunerado_por_municipio_por_mujeres"
     },
     {
       "type": "tipo_trabajo"
@@ -1136,6 +1148,9 @@
     },
     {
       "type": "tipo_trabajo_por_mujeres"
+    },
+    {
+      "type": "trabajo_remunerado_por_municipio"
     }
   ],
   "p10": [
