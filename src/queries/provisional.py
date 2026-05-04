@@ -1348,6 +1348,28 @@ def get_distrito_query(initial_only: bool = True) -> str:
     return query
 
 
+def get_escuela_publica_by_municipio_query(initial_only: bool = True) -> str:
+    """
+    Similar to get_municipio_by_nivel_actual_estudios_primaria but filtered by respondents that answered 1 (Escuela Pública) to the "tipo_escuela" attribute.
+    """
+    return _get_municipio_by_attribute_values_query(
+        attribute="tipo_escuela",
+        attribute_values=[1],
+        initial_only=initial_only,
+    )
+
+
+def get_escuela_privada_by_municipio_query(initial_only: bool = True) -> str:
+    """
+    Similar to get_municipio_by_nivel_actual_estudios_primaria but filtered by respondents that answered 2 (Escuela Privada) to the "tipo_escuela" attribute.
+    """
+    return _get_municipio_by_attribute_values_query(
+        attribute="tipo_escuela",
+        attribute_values=[2],
+        initial_only=initial_only,
+    )
+
+
 DISAGGREGATIONS_MAP = {
     "trabajo_remunerado": lambda initial_only: get_trabajo_remunerado_query(
         initial_only
@@ -1466,4 +1488,10 @@ DISAGGREGATIONS_MAP = {
         initial_only
     ),
     "distrito": lambda initial_only: get_distrito_query(initial_only),
+    "escuela_publica_por_municipio": lambda initial_only: get_escuela_publica_by_municipio_query(
+        initial_only
+    ),
+    "escuela_privada_por_municipio": lambda initial_only: get_escuela_privada_by_municipio_query(
+        initial_only
+    ),
 }

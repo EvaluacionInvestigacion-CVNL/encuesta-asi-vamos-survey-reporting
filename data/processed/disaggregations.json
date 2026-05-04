@@ -560,6 +560,12 @@
     },
     {
       "type": "nivel_actual_estudios_media_superior_por_municipio"
+    },
+    {
+      "type": "escuela_publica_por_municipio"
+    },
+    {
+      "type": "escuela_privada_por_municipio"
     }
   ],
   "p1": [
